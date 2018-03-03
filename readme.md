@@ -7,3 +7,5 @@ A few handy commands:
   * `python capture.py -r baselineTeam -b baselineTeam`
 * Run game controlling agent0 with arrowkeys, random seeded layout 5, & time 2400
   * `python capture.py --keys0 -l RANDOM5 -i 2400`
+* Run game replay from .rec file
+ * `python capture.py --replay=<filename>`
