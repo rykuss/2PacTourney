@@ -18,7 +18,7 @@ from util import nearestPoint
 #################
 
 def createTeam(firstIndex, secondIndex, isRed,
-               first = 'OffensiveReflexAgent', second = 'OffensiveReflexAgent'):
+               first = 'OffensiveReflexAgentOne', second = 'OffensiveReflexAgentTwo'):
   """
   This function should return a list of two agents that will form the
   team, initialized using firstIndex and secondIndex as their agent
@@ -124,6 +124,7 @@ class ReflexCaptureAgent(CaptureAgent):
     Computes a linear combination of features and feature weights
     """
     features = self.getFeatures(gameState, action)
+    self.getEnemyPositions(gameState, action, features)
     weights = self.getWeights(gameState, action)
     return features * weights
 
@@ -143,7 +144,9 @@ class ReflexCaptureAgent(CaptureAgent):
     """
     return {'successorScore': 1.0}
 
-class OffensiveReflexAgent(ReflexCaptureAgent):
+
+
+class OffensiveReflexAgentOne(ReflexCaptureAgent):
   """
   A reflex agent that seeks food. This is an agent
   we give you to get an idea of what an offensive agent might look like,
@@ -160,9 +163,118 @@ class OffensiveReflexAgent(ReflexCaptureAgent):
       myPos = successor.getAgentState(self.index).getPosition()
       minDistance = min([self.getMazeDistance(myPos, food) for food in foodList])
       features['distanceToFood'] = minDistance
+
+    if action == Directions.STOP: features['stop'] = 1
+    rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
+    if action == rev: features['reverse'] = 1
+
+    return features
+
+  def getEnemyPositions(self, gameState, action, features):
+    successor = self.getSuccessor(gameState, action)
+
+    myState = successor.getAgentState(self.index)
+    myPos = myState.getPosition()
+
+    # Computes distance to invaders we can see
+    enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
+    invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
+    defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
+    if len(defenders) > 0:
+      dists = [self.getMazeDistance(myPos, a.getPosition()) for a in defenders]
+      if min(dists) < 2:
+        features['defenderDistance'] = 1
+        self.getPowerPellets(gameState, action, features, min(dists))
+    else:
+      features['defenderDistance'] = 0
+
+    if len(invaders) > 0:
+      dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
+      if min(dists) < 2:
+        features['invaderDistance']=min(dists)
+    else:
+      features['invaderDistance'] = 0
+
+    return features
+
+  def getPowerPellets(self, gameState, action, features, closestEnemy):
+    if closestEnemy < 3:
+      successor = self.getSuccessor(gameState, action)
+      capsuleList = self.getCapsules(gameState)
+      if len(capsuleList) > 0: 
+        myPos = successor.getAgentState(self.index).getPosition()
+        minDistance = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])
+        features['distanceToCapsule'] = minDistance
+
     return features
 
   def getWeights(self, gameState, action):
-    return {'successorScore': 100, 'distanceToFood': -1}
+    return {'successorScore': 10, 'distanceToFood': -1, 'distanceToCapsule': 1000, 'defenderDistance': -100, 'invaderDistance':100, 'stop': -100, 'reverse': -100}
+
+
+class OffensiveReflexAgentTwo(ReflexCaptureAgent):
+  """
+  A reflex agent that seeks food. This is an agent
+  we give you to get an idea of what an offensive agent might look like,
+  but it is by no means the best or only way to build an offensive agent.
+  """
+  def getFeatures(self, gameState, action):
+    features = util.Counter()
+    successor = self.getSuccessor(gameState, action)
+    features['successorScore'] = self.getScore(successor)
+
+    # Compute distance to the nearest food
+    foodList = self.getFood(successor).asList()
+    if len(foodList) > 0: # This should always be True,  but better safe than sorry
+      myPos = successor.getAgentState(self.index).getPosition()
+      minDistance = min([self.getMazeDistance(myPos, food) for food in foodList])
+      features['distanceToFood'] = minDistance
+
+    if action == Directions.STOP: features['stop'] = 1
+    rev = Directions.REVERSE[gameState.getAgentState(self.index).configuration.direction]
+    if action == rev: features['reverse'] = 1
+
+    return features
+
+  def getEnemyPositions(self, gameState, action, features):
+    successor = self.getSuccessor(gameState, action)
+
+    myState = successor.getAgentState(self.index)
+    myPos = myState.getPosition()
+
+    # Computes distance to invaders we can see
+    enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
+    invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
+    defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
+    if len(defenders) > 0:
+      dists = [self.getMazeDistance(myPos, a.getPosition()) for a in defenders]
+      if min(dists) < 2:
+        features['defenderDistance'] = 1
+        self.getPowerPellets(gameState, action, features, min(dists))
+    else:
+      features['defenderDistance'] = 0
+
+    if len(invaders) > 0:
+      dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
+      if min(dists) < 2:
+        features['invaderDistance']=min(dists)
+    else:
+      features['invaderDistance'] = 0
+
+    return features
+
+  def getPowerPellets(self, gameState, action, features, closestEnemy):
+    if closestEnemy < 3:
+      successor = self.getSuccessor(gameState, action)
+      capsuleList = self.getCapsules(gameState)
+      if len(capsuleList) > 0: 
+        myPos = successor.getAgentState(self.index).getPosition()
+        minDistance = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])
+        features['distanceToCapsule'] = minDistance
+
+    return features
+
+  def getWeights(self, gameState, action):
+    return {'successorScore': 10, 'distanceToFood': -1, 'distanceToCapsule': 1000, 'defenderDistance': -100, 'invaderDistance':10000, 'stop': -100, 'reverse': -100}
 
 
