@@ -209,7 +209,7 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
     return features
 
   def getWeights(self, gameState, action):
-    return {'successorScore': 10, 'distanceToFood': -1, 'distanceToCapsule': 1000, 'defenderDistance': -100, 'invaderDistance':100, 'stop': -100, 'reverse': -100}
+    return {'successorScore': 10, 'distanceToFood': -1, 'distanceToCapsule': 1000, 'defenderDistance': -1000, 'invaderDistance':10, 'stop': -100, 'reverse': -100}
 
 
 class OffensiveReflexAgentTwo(ReflexCaptureAgent):
@@ -257,7 +257,7 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
     if len(invaders) > 0:
       dists = [self.getMazeDistance(myPos, a.getPosition()) for a in invaders]
       if min(dists) < 2:
-        features['invaderDistance']=min(dists)
+        features['invaderDistance']=min(dists) + 1
     else:
       features['invaderDistance'] = 0
 

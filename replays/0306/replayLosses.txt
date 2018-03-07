@@ -1,0 +1,16 @@
+Losses As Blue: Type Team name and tab to finish to pull link up in command
+TheGhostbusters - 14
+HAL9001 - 8
+OverworkedImmigrants - 1
+Genghar_Khan - 3
+ChasedByGhosts - 10
+Solo47 - 7
+memeteam - 6
+
+Losses as Red: Type, "2Pac-[Insert Team name Here]" and tab to finish to pull link up in command
+HAL9001 - -12
+ChasedByGhosts - -26
+Solo47 - -10
+pacmanteam - -6
+memeteam - -2
+TedCruzSuperPAC - -1
