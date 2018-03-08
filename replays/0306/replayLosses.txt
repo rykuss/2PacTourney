@@ -1,0 +1,16 @@
+Losses As Blue: Type Team name and tab to finish to pull link up in command
+HAL9001 - 	       8  - Both agents fully defend initially when score is -2, and then upon consumption of pacmen become full attackers
+ChasedByGhosts -       10 - One attacker & one (shit) defender
+Solo47 - 	       7  - Both agents attack (one with slight defense when in close range)
+memeteam - 	       6  - One attacker & one defender
+Genghar_Khan - 	       3  - One attacker & one defender
+TheGhostbusters -      14 - One attacker & one defender
+OverworkedImmigrants - 1  - One network flow blocking & one attacker
+
+Losses as Red: Type, "2Pac-[Insert Team name Here]" and tab to finish to pull link up in command
+HAL9001 - 	      -12 - One agent initially defends when score is down and then both go into attacking
+ChasedByGhosts -      -26 - One attacker & one (shit) defender
+Solo47 - 	      -10 - Both agents attack (one with slight defense when in close range)
+memeteam - 	       -2 - One agent initially defends when score is down and then both go into attacking. Pacman agent stays near power capsule while other attacks
+pacmanteam - 	       -6 - 
+TedCruzSuperPAC -      -1 - 
