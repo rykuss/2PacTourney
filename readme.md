@@ -9,8 +9,8 @@ A few handy commands:
   * `python capture.py --keys0 -i <time_amount>`
 * Run game with specified layout
   * `python capture.py -l <layout_file>`
-    * Use `python capture.py -l RANDOM` for a random maze layout
-    * Use `python capture.py -l RANDOM<seed_num> for a specified random seed layout
+    * Use `-l RANDOM` for a random maze layout
+    * Use `-l RANDOM<seed_num>` for a specified random seed layout
 * Run game replay from .rec file
   * `python capture.py --replay=<filename.rec>`
 * Run game with no graphics and minimal output
