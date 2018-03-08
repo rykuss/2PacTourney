@@ -104,14 +104,7 @@ class ReflexCaptureAgent(CaptureAgent):
       values[a] = self.evaluate(gameState, a) 
     # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
 
-    if len(actions) > 1:
-      print self.index
-      print "ITERATION"
-      for a in actions:
-        print a
-        print values[a]
-
-    maxValue = -1000
+    maxValue = -100000
     for a in actions:
       if maxValue < values[a]:
         maxValue = values[a]
@@ -200,19 +193,18 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
         elif d.scaredTimer <= 10:
           if dists < 4:
             value += ((1.0/(dists+1)) * 412.0)
-    elif not successor.getAgentState(self.index).isPacman:
-      invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
-      myCurrentPos = gameState.getAgentState(self.index).getPosition()
-      if successor.getAgentState(self.index).scaredTimer == 0:
-        for i in invaders:
-          dists = self.getMazeDistance(myCurrentPos, i.getPosition())
-          if dists < 4:
-            value += ((1.0/(dists+1)) * 204.0) 
-      elif successor.getAgentState(self.index).scaredTimer > 0:
-        for i in invaders:
-          dists = self.getMazeDistance(myPos, i.getPosition())
-          if dists < 3:
-            value -= ((1.0/(dists+1)) * 60.0) 
+    invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
+    if successor.getAgentState(self.index).scaredTimer == 0:
+      for i in invaders:
+        dists = self.getMazeDistance(myPos, i.getPosition())
+        if dists < 6:
+          value += ((1.0/(dists+1)) * 4004.0) 
+          value -= (len(invaders)*4000)
+    elif successor.getAgentState(self.index).scaredTimer > 0:
+      for i in invaders:
+        dists = self.getMazeDistance(myPos, i.getPosition())
+        if dists < 3:
+          value -= ((1.0/(dists+1)) * 60.0)  
     return value
 
 
@@ -278,17 +270,16 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
         elif d.scaredTimer <= 10:
           if dists < 4:
             value += ((1.0/(dists+1)) * 412.0)
-    elif not successor.getAgentState(self.index).isPacman:
-      invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
-      myCurrentPos = gameState.getAgentState(self.index).getPosition()
-      if successor.getAgentState(self.index).scaredTimer == 0:
-        for i in invaders:
-          dists = self.getMazeDistance(myCurrentPos, i.getPosition())
-          if dists < 4:
-            value += ((1.0/(dists+1)) * 204.0) 
-      elif successor.getAgentState(self.index).scaredTimer > 0:
-        for i in invaders:
-          dists = self.getMazeDistance(myPos, i.getPosition())
-          if dists < 3:
-            value -= ((1.0/(dists+1)) * 60.0) 
+    invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
+    if successor.getAgentState(self.index).scaredTimer == 0:
+      for i in invaders:
+        dists = self.getMazeDistance(myPos, i.getPosition())
+        if dists < 6:
+          value += ((1.0/(dists+1)) * 4004.0) 
+          value -= (len(invaders)*4000)
+    elif successor.getAgentState(self.index).scaredTimer > 0:
+      for i in invaders:
+        dists = self.getMazeDistance(myPos, i.getPosition())
+        if dists < 3:
+          value -= ((1.0/(dists+1)) * 60.0) 
     return value
