@@ -12,5 +12,5 @@ HAL9001 - 	      -12 - One agent initially defends when score is down and then b
 ChasedByGhosts -      -26 - One attacker & one (shit) defender
 Solo47 - 	      -10 - Both agents attack (one with slight defense when in close range)
 memeteam - 	       -2 - One agent initially defends when score is down and then both go into attacking. Pacman agent stays near power capsule while other attacks
-pacmanteam - 	       -6 - 
-TedCruzSuperPAC -      -1 - 
+pacmanteam - 	       -6 - One attacker & one defender
+TedCruzSuperPAC -      -1 - One attacker & one (shit) defender
