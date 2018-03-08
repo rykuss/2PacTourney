@@ -136,9 +136,13 @@ class ReflexCaptureAgent(CaptureAgent):
 class OffensiveReflexAgentOne(ReflexCaptureAgent):
 
   def getValue(self, gameState, action):
+
+#############################################SETUP##################################################################
     successor = self.getSuccessor(gameState, action)
     value = 0.0
     myPos = successor.getAgentState(self.index).getPosition()
+#############################################ENDSETUP##################################################################
+#############################################FOOD&SCORETALLYING########################################################
     # Compute distance to the nearest food
     foodList = self.getFood(successor).asList()
     if len(foodList) > 0: # This should always be True,  but better safe than sorry
@@ -156,7 +160,10 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
             closestBelowFood = dists
       value += (((1.0/(closestUpperFood+1.0)) * 102.0) + ((1.0/(closestBelowFood+1.0)) * 30.0))
       value += self.getScore(successor)*100.0
+#############################################ENDFOOD&SCORETALLYING#####################################################
 
+#############################################GHOST/CAPSULEACCOUNTING###################################################
+#############################################IE, WHEN WE'RE PACMAN#####################################################
     enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
     if successor.getAgentState(self.index).isPacman:
       defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
@@ -176,46 +183,71 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
               allyIndex = 1
 
           distsAlly = self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), d.getPosition())
-          if dists < 4:
+          if dists < 6:
             value -= ((1.0/(dists+1)) * 200.0)
             capsuleList = self.getCapsules(gameState)
             if len(capsuleList) > 0: 
               dists = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])
               value += ((1.0/(dists+1)) * 30.0)
-          elif distsAlly < 4:
+          elif distsAlly < 6 and successor.getAgentState(allyIndex).isPacman:
             capsuleList = self.getCapsules(gameState)
             if len(capsuleList) > 0: 
               dists = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])
               value += ((1.0/(dists+1)) * 624.0)
         elif d.scaredTimer > 10:
-          if dists < 4:
+          if dists < 6:
             value -= ((1.0/(dists+1)) * 100.0)
         elif d.scaredTimer <= 10:
-          if dists < 4:
+          if dists < 6:
             value += ((1.0/(dists+1)) * 412.0)
+#############################################ENDGHOST/CAPSULEACCOUNTING#################################################
+
+#############################################PACMANACCOUNTING###########################################################
+#############################################IE, WHEN WE'RE A GHOST#####################################################
     invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
     if successor.getAgentState(self.index).scaredTimer == 0:
       for i in invaders:
         dists = self.getMazeDistance(myPos, i.getPosition())
         if dists < 6:
-          value += ((1.0/(dists+1)) * 4004.0) 
-          value -= (len(invaders)*4000)
+          allyIndex = self.index
+          if self.red:
+            if self.index == 0:
+              allyIndex = 2
+            else:
+              allyIndex = 0
+          else:
+            if self.index == 1:
+              allyIndex = 3
+            else:
+              allyIndex = 1
+
+          distsAlly = self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), i.getPosition())
+          if distsAlly > 1:
+            if self.getScore(successor) >= -3:
+              value += ((1.0/(dists+1)) * 40004.0) 
+            else:
+              value += ((1.0/(dists+1)) * 4004.0) 
+            value -= (len(invaders)*4000)
     elif successor.getAgentState(self.index).scaredTimer > 0:
       for i in invaders:
         dists = self.getMazeDistance(myPos, i.getPosition())
-        if dists < 3:
+        if dists < 6:
           value -= ((1.0/(dists+1)) * 60.0)  
     return value
-
+#############################################ENDPACMANACCOUNTING########################################################
 
 
 
 class OffensiveReflexAgentTwo(ReflexCaptureAgent):
 
   def getValue(self, gameState, action):
+
+#############################################SETUP##################################################################
     successor = self.getSuccessor(gameState, action)
     value = 0.0
     myPos = successor.getAgentState(self.index).getPosition()
+#############################################ENDSETUP##################################################################
+#############################################FOOD&SCORETALLYING########################################################
     # Compute distance to the nearest food
     foodList = self.getFood(successor).asList()
     if len(foodList) > 0: # This should always be True,  but better safe than sorry
@@ -233,7 +265,10 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
             closestBelowFood = dists
       value += (((1.0/(closestUpperFood+1.0)) * 30.0) + ((1.0/(closestBelowFood+1.0)) * 102.0))
       value += self.getScore(successor)*100.0
+#############################################ENDFOOD&SCORETALLYING#####################################################
 
+#############################################GHOST/CAPSULEACCOUNTING###################################################
+#############################################IE, WHEN WE'RE PACMAN#####################################################
     enemies = [successor.getAgentState(i) for i in self.getOpponents(successor)]
     if successor.getAgentState(self.index).isPacman:
       defenders = [a for a in enemies if not a.isPacman and a.getPosition() != None]
@@ -253,33 +288,55 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
               allyIndex = 1
 
           distsAlly = self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), d.getPosition())
-          if dists < 4:
+          if dists < 6:
             value -= ((1.0/(dists+1)) * 200.0)
             capsuleList = self.getCapsules(gameState)
             if len(capsuleList) > 0: 
               dists = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])
               value += ((1.0/(dists+1)) * 30.0)
-          elif distsAlly < 4:
+          elif distsAlly < 6 and successor.getAgentState(allyIndex).isPacman:
             capsuleList = self.getCapsules(gameState)
             if len(capsuleList) > 0: 
               dists = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])
               value += ((1.0/(dists+1)) * 624.0)
         elif d.scaredTimer > 10:
-          if dists < 4:
+          if dists < 6:
             value -= ((1.0/(dists+1)) * 100.0)
         elif d.scaredTimer <= 10:
-          if dists < 4:
+          if dists < 6:
             value += ((1.0/(dists+1)) * 412.0)
+#############################################ENDGHOST/CAPSULEACCOUNTING#################################################
+
+#############################################PACMANACCOUNTING###########################################################
+#############################################IE, WHEN WE'RE A GHOST#####################################################
     invaders = [a for a in enemies if a.isPacman and a.getPosition() != None]
     if successor.getAgentState(self.index).scaredTimer == 0:
       for i in invaders:
         dists = self.getMazeDistance(myPos, i.getPosition())
         if dists < 6:
-          value += ((1.0/(dists+1)) * 4004.0) 
-          value -= (len(invaders)*4000)
+          allyIndex = self.index
+          if self.red:
+            if self.index == 0:
+              allyIndex = 2
+            else:
+              allyIndex = 0
+          else:
+            if self.index == 1:
+              allyIndex = 3
+            else:
+              allyIndex = 1
+
+          distsAlly = self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), i.getPosition())
+          if distsAlly > 1:
+            if self.getScore(successor) >= -3:
+              value += ((1.0/(dists+1)) * 40004.0) 
+            else:
+              value += ((1.0/(dists+1)) * 4004.0) 
+            value -= (len(invaders)*4000)
     elif successor.getAgentState(self.index).scaredTimer > 0:
       for i in invaders:
         dists = self.getMazeDistance(myPos, i.getPosition())
-        if dists < 3:
-          value -= ((1.0/(dists+1)) * 60.0) 
+        if dists < 6:
+          value -= ((1.0/(dists+1)) * 60.0)  
     return value
+#############################################ENDPACMANACCOUNTING########################################################
