@@ -1,0 +1,18 @@
+Losses As Blue:
+
+HAL9001 - 	       6  - Close to winning. Attacking agent froze. Their agent eats us when we're on their side and then upon consumption proceeds to attack ouor side.
+Solo47 - 	       4  - Close to winning. Need to work on efficiently eating pellets quickly. Both agents attack (one with slight defense when in close range)
+memeteam - 	       12 - Lost because defender did cycles instead of eating invader. From 0306: One attacker & one defender
+LastPlace2Pac -        2  - Close to winning. Need to work on efficiently eating pellets quickly. Both agents attack
+TopTen - 	       6  - Close to winning. Lost because ghost became scared and didn't defend our territory. Both agents attack
+
+Losses as Red: 
+
+HAL9001 - 	      	0 - Froze at border next to enemy ghosts One agent initially defends when score is down and then both go into attacking
+ChasedByGhosts -       -1 - Lost from dumb agent behavior. Scared ghost waits down timer on enemy side. One attacker & one (shit) defender
+memeteam - 	       	0 - Lost from dumb pacman agents cycling next to border. One defender, one attacker. From 0306: One agent initially defends when score is down and then both go into attacking. Pacman agent stays near power capsule while other attacks
+pacmanteam - 	       -1 - Lost from not dividing/conquering eating food on other side. Two attackers
+ElysianLearning - 	0 - Lost from dumb pacman agent freezing on other side near ghost. One attacker & one (shit) defender
+LightHunger -		0 - Lost from dumb pacman agents freezing on other side near ghosts.
+TheGhostBusters -      -2 - Winning until pacman agents freeze on other side and are eaten by defending ghost. One attacker one defender.
+TopTen - 	       -2 - Close to winning. Pinned for too long, wait to eat until losing by 1 or 2 points instead of 3 in conjunction with time. Both agents attack.

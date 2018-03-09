@@ -112,6 +112,11 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
           dists = self.getMazeDistance(myPos, food)
           if dists < closestBelowFood:
             closestBelowFood = dists                # Closest lower food updated with correct distance
+
+      # if self.getScore(successor) <= 0:             # Factor time into eating food TODO: Play around with 60,000 weight number
+      #     timeWeight = ((1.0 / (successor.data.timeleft + 1)) * 1200000.0)
+      #     value += (timeWeight* (1/closestUpperFood))
+
       value += (((1.0/(closestUpperFood+1.0)) * 102.0) + ((1.0/(closestBelowFood+1.0)) * 30.0))  # AgentOne prefers upper grid while AgentTwo prefers lower food
                                                                                                  # TODO: Reconfigure reciprocals to negatives
       value += self.getScore(successor)*100.0       # Value score to encourage eating food you're immediately next to
@@ -125,10 +130,13 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
         dists = self.getMazeDistance(myPos, d.getPosition())  # For every enemy defender, calculate distance between agent next position and enemy current position
         if d.scaredTimer == 0:                                # Check if enemy defender is not scared
 
-          value -= ((1.0/(dists+1)) * 200.0)  # Discourage current agent travel towards defender ghost
+          # TODO: Play around with this value so agent doesn't freeze in vicinity of ghost
+          if (1.0/(dists+1)) * 100.0 < (((1.0/(closestUpperFood+1.0)) * 102.0) + ((1.0/(closestBelowFood+1.0)) * 30.0)):
+            value -= ((1.0/(dists+1)) * 100.0)  # Discourage current agent travel towards defender ghost
+
+          # value -= ((1.0 / (dists + 1)) * 200.0)  # Discourage current agent travel towards defender ghost
 
           capsuleList = self.getCapsules(gameState)
-          closestCapDist = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])  # Calculate distance between you and closest capsule
 
           allyIndex = -1  # Find index of other agent on team
           if self.index == 0:
@@ -136,14 +144,14 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
           elif self.index == 1:
             allyIndex = 3
           if len(capsuleList) > 0: # If capsules are available
+            closestCapDist = min([self.getMazeDistance(myPos, cap) for cap in
+                                    capsuleList])  # Calculate distance between you and closest capsule
             if successor.getAgentState(allyIndex).isPacman:  # Check if ally is pacman
               if self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), d.getPosition()) > dists:  # Check if ally is further from ghost than current agent
                 value -= ((1.0 / (dists + 1)) * 100.0)  # Discourage current agent travel towards defender ghost EVEN MORE
                 value +=((1.0/(closestCapDist+1)) * 20.0) # If we happen to come by a capsule along our running away, eat the capsule
               else:
                 value +=((1.0/(closestCapDist+1)) * 100.0)
-          # TODO: Copy this into other agent so it will also account
-
 
           # value += ((1.0/(closestCapDist+1)) * 30.0) # Encourage pacman to visit closest capsule while ghost is close and not scared
 
@@ -157,6 +165,8 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
     # ***** END Ghost/Capsule accounting *****
 
     # ***** BEGIN Accounting for invaders within sight *****
+    invadercounter = 0
+    otherEnemy = -1
 
     invaders = [a for a in enemies if a.isPacman and a.getPosition() != None] # Get opponent invaders within 5 distance
     if successor.getAgentState(self.index).scaredTimer == 0:  # Check if current agent is not scared (as a ghost)
@@ -172,14 +182,30 @@ class OffensiveReflexAgentOne(ReflexCaptureAgent):
           # Distance between i invader and ally
           distsAlly = self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), i.getPosition())
 
+          # ***** Pinning functionality ******
           if distsAlly > 1: # Check if invader is more than 1 distance away from ally
+
             if self.getScore(successor) >= -3:     # Check if successor score is not currently losing by more than 3
-              value += ((1.0/(dists+1)) * 40004.0) # We can afford to pin i invader/allow pinning
-            else:                                  # Losing by more than 3,
+              #value += ((1.0/(dists+1)) * 40004.0) # We can afford to pin i invader/allow pinning
+
+              if len(invaders) > 1:         # Check for multiple invaders
+                if invadercounter > 0:      # Get other invader not being pinned
+                  otherEnemy = invaders[0]
+                else:
+                  otherEnemy = invaders[1]
+                if self.getMazeDistance(successor.getAgentState(self.index).getPosition(), otherEnemy.getPosition()) < 4:
+                  print("Close!!!!")
+                  value += ((1.0 / (dists + 1)) * 4004.0)  # Encourages eating of i invader so we can use this agent to collect food on other side
+                else:
+                  value += ((1.0 / (dists + 1)) * 40004.0)  # We can afford to pin i invader/allow pinning
+              else:
+                value += ((1.0 / (dists + 1)) * 40004.0)
+
+            if self.getScore(successor) < -3:           # Losing by more than 3,
               value += ((1.0/(dists+1)) * 4004.0)  # Encourages eating of i invader so we can use this agent to collect food on other side
 
             value -= (len(invaders)*4000)  # Lets agent eat i invader if losing by >3
-            # TODO: Check if there is another invader that comes by, so we either keep pinning current invader or eat them and get the new invader
+            # TODO: Check if there is another invader that comes by, so we either keep pinning current invader or eat them and get the new invader      invadercounter += 1  # Used to find other invader index
     elif successor.getAgentState(self.index).scaredTimer > 0:  # If current agent is scared
       for i in invaders:
         dists = self.getMazeDistance(myPos, i.getPosition())   # Distance between current agent and i invader
@@ -218,9 +244,14 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
           dists = self.getMazeDistance(myPos, food)
           if dists < closestBelowFood:
             closestBelowFood = dists                # Closest lower food updated with correct distance
+
+      # if self.getScore(successor) <= 0:             # TODO: Factor time into eating food (play around with 1200000 weight number)
+      #     timeWeight = ((1.0 / (successor.data.timeleft + 1)) * 1200000.0)
+      #     value += (timeWeight * (1 / closestUpperFood))
+
       value += (((1.0/(closestUpperFood+1.0)) * 30.0) + ((1.0/(closestBelowFood+1.0)) * 102.0))  # AgentTwo prefers lower grid while AgentOne prefers upper food
                                                                                                  # TODO: Reconfigure reciprocals to negatives
-      value += self.getScore(successor)*100.0       # Value score to encourage eating food you're immediately next to
+      value += self.getScore(successor)*100.0       # Value game score to encourage eating food you're immediately next to
 
     # ***** BEGIN Ghost/Capsule accounting when agent is invader *****
 
@@ -231,25 +262,29 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
         dists = self.getMazeDistance(myPos, d.getPosition())  # For every enemy defender, calculate distance between agent next position and enemy current position
         if d.scaredTimer == 0:                                # Check if enemy defender is not scared
 
-          value -= ((1.0/(dists+1)) * 200.0)  # Discourage current agent travel towards defender ghost
+          # TODO: Play around with this value so agent doesn't freeze in vicinity of ghost
+          if (1.0/(dists+1)) * 100.0 < (((1.0/(closestUpperFood+1.0)) * 30.0) + ((1.0/(closestBelowFood+1.0)) * 102.0)):
+            value -= ((1.0/(dists+1)) * 100.0)  # Discourage current agent travel towards defender ghost
+
+          # value -= ((1.0 / (dists + 1)) * 200.0)  # Discourage current agent travel towards defender ghost
 
           capsuleList = self.getCapsules(gameState)
-          closestCapDist = min([self.getMazeDistance(myPos, cap) for cap in capsuleList])  # Calculate distance between you and closest capsule
 
           allyIndex = -1  # Find index of other agent on team
           if self.index == 0:
             allyIndex = 2
           elif self.index == 1:
             allyIndex = 3
+
           if len(capsuleList) > 0: # If capsules are available
+            closestCapDist = min([self.getMazeDistance(myPos, cap) for cap in
+                                    capsuleList])  # Calculate distance between you and closest capsule
             if successor.getAgentState(allyIndex).isPacman:  # Check if ally is pacman
               if self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), d.getPosition()) > dists:  # Check if ally is further from ghost than current agent
                 value -= ((1.0 / (dists + 1)) * 100.0)  # Discourage current agent travel towards defender ghost EVEN MORE
                 value +=((1.0/(closestCapDist+1)) * 20.0) # If we happen to come by a capsule along our running away, eat the capsule
               else:
                 value +=((1.0/(closestCapDist+1)) * 100.0)
-          # TODO: Copy this into other agent so it will also account
-
 
           # value += ((1.0/(closestCapDist+1)) * 30.0) # Encourage pacman to visit closest capsule while ghost is close and not scared
 
@@ -263,6 +298,8 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
     # ***** END Ghost/Capsule accounting *****
 
     # ***** BEGIN Accounting for invaders within sight *****
+    invadercounter = 0
+    otherEnemy = -1
 
     invaders = [a for a in enemies if a.isPacman and a.getPosition() != None] # Get opponent invaders within 5 distance
     if successor.getAgentState(self.index).scaredTimer == 0:  # Check if current agent is not scared (as a ghost)
@@ -278,14 +315,31 @@ class OffensiveReflexAgentTwo(ReflexCaptureAgent):
           # Distance between i invader and ally
           distsAlly = self.getMazeDistance(successor.getAgentState(allyIndex).getPosition(), i.getPosition())
 
+          # ***** Pinning functionality ******
           if distsAlly > 1: # Check if invader is more than 1 distance away from ally
+
             if self.getScore(successor) >= -3:     # Check if successor score is not currently losing by more than 3
-              value += ((1.0/(dists+1)) * 40004.0) # We can afford to pin i invader/allow pinning
-            else:                                  # Losing by more than 3,
+              #value += ((1.0/(dists+1)) * 40004.0) # We can afford to pin i invader/allow pinning
+
+              if len(invaders) > 1:         # Check for multiple invaders
+                if invadercounter > 0:      # Get other invader not being pinned
+                  otherEnemy = invaders[0]
+                else:
+                  otherEnemy = invaders[1]
+                if self.getMazeDistance(successor.getAgentState(self.index).getPosition(), otherEnemy.getPosition()) < 4:
+                  print("Close!!!!")
+                  value += ((1.0 / (dists + 1)) * 4004.0)  # Encourages eating of i invader so we can use this agent to collect food on other side
+                else:
+                  value += ((1.0 / (dists + 1)) * 40004.0)  # We can afford to pin i invader/allow pinning
+              else:
+                value += ((1.0 / (dists + 1)) * 40004.0)
+
+            if self.getScore(successor) < -3:           # Losing by more than 3,
               value += ((1.0/(dists+1)) * 4004.0)  # Encourages eating of i invader so we can use this agent to collect food on other side
 
             value -= (len(invaders)*4000)  # Lets agent eat i invader if losing by >3
             # TODO: Check if there is another invader that comes by, so we either keep pinning current invader or eat them and get the new invader
+      invadercounter += 1
     elif successor.getAgentState(self.index).scaredTimer > 0:  # If current agent is scared
       for i in invaders:
         dists = self.getMazeDistance(myPos, i.getPosition())   # Distance between current agent and i invader
