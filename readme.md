@@ -21,7 +21,8 @@ Running `python capture.py -r myTeam -b baselineTeam` with `OffensiveReflexAgent
 	* Observed on `-l` (layout) `RANDOM20`
 * Exception thrown [Observed on `-l` (layout) `RANDOM16, RANDOM30`]:
 
-```Traceback (most recent call last):
+```
+Traceback (most recent call last):
   File "capture.py", line 833, in <module>
     runGames(**options)
   File "capture.py", line 794, in runGames
