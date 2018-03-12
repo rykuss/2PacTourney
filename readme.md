@@ -6,7 +6,7 @@ This branch is for testing the newly added smart power capsule ally retrieval an
 ### Scenario 1: 
 Running `python capture.py -r myTeam -b baselineTeam` with `OffensiveReflexAgent` and `DefensiveReflexAgent`
 
-* Defenders run away from run away from invader when they're not in fact scared. Maybe this has something to do with trying to pin the invader?
+* Defenders run away from invader when they're not in fact scared. Maybe this has something to do with trying to pin the invader?
 	* Observed on `-l` (layout) `RANDOM7, RANDOM17, RANDOM20, RANDOM22`
 * Our invader freezes next to enemy defender
 	* Observed on `-l` (layout) `RANDOM26, RANDOM35`
