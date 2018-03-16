@@ -46,6 +46,9 @@ Traceback (most recent call last):
 TypeError: 'NoneType' object is not iterable
 ```
 
+### Scenario 3:
+* (In Ghost/Capsule accounting when agent is invader), we check if capsules are available and if the ally is a pacman. However, if there is no pacman ally, we don't encourage the current agent to eat a capsule. Thus, we should encourage the current agent to eat a capsule by having an else statement and adding to the value with the `closestCapDist`.
+
 ## A few handy commands:
 * Run a basic game
   * `python capture.py`
